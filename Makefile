@@ -180,6 +180,10 @@ versioned-images := 		php-7.3-fpm \
 							solr-7-drupal \
 							mariadb-10.5 \
 							mariadb-10.5-drupal \
+							mysql-5.7 \
+							mysql-5.7-drupal \
+							mysql-8.0 \
+							mysql-8.0-drupal
 
 # default-versioned-images are images that formerly had no versioning, and are made backwards-compatible.
 # the below versions are the ones that map to the unversioned namespace
@@ -251,6 +255,9 @@ build/solr-7-drupal: build/solr-7
 build/mariadb-10.4 build/mariadb-10.5: build/commons
 build/mariadb-10.4-drupal: build/mariadb-10.4
 build/mariadb-10.5-drupal: build/mariadb-10.5
+build/mysql-5.7 build/mysql-8.0: build/commons
+build/mysql-5.7-drupal : build/mysql-5.7
+build/mysql-8.0-drupal : build/mysql-8.0
 
 #######
 ####### Building Images
