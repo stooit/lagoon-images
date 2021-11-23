@@ -1,7 +1,6 @@
 ARG IMAGE_REPO
 FROM ${IMAGE_REPO:-lagoon}/commons as commons
-# Held at 3.12.7 to ensure mariadb 10.4 whilst we evaluate upgrade path
-FROM mysql:8.0.26
+FROM mysql:8.0.27
 
 LABEL org.opencontainers.image.authors="The Lagoon Authors" maintainer="The Lagoon Authors"
 LABEL org.opencontainers.image.source="https://github.com/uselagoon/lagoon-images" repository="https://github.com/uselagoon/lagoon-images"
@@ -12,11 +11,9 @@ ENV LAGOON_VERSION=$LAGOON_VERSION
 ENV TINI_VERSION v0.19.0
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /sbin/tini
 
-
 # Copy commons files
 COPY --from=commons /lagoon /lagoon
 COPY --from=commons /bin/fix-permissions /bin/ep /bin/docker-sleep /bin/wait-for /bin/
-#COPY --from=commons /sbin/tini /sbin/
 COPY --from=commons /home /home
 
 # needed to fix dash upgrade - man files are removed from slim images

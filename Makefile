@@ -39,7 +39,7 @@ SHELL := /bin/bash
 #######
 
 # Parameter for all `docker build` commands, can be overwritten by passing `DOCKER_BUILD_PARAMS=` via the `-e` option
-DOCKER_BUILD_PARAMS :=
+DOCKER_BUILD_PARAMS := --quiet
 
 # On CI systems like jenkins we need a way to run multiple testings at the same time. We expect the
 # CI systems to define an Environment variable CI_BUILD_TAG which uniquely identifies each build.
@@ -206,10 +206,6 @@ versioned-images := 		php-7.3-fpm \
 							solr-7-drupal \
 							mariadb-10.5 \
 							mariadb-10.5-drupal \
-							mysql-5.7 \
-							mysql-5.7-drupal \
-							mysql-8.0 \
-							mysql-8.0-drupal
 							varnish-6 \
 							varnish-6-drupal \
 							varnish-6-persistent \
@@ -236,6 +232,10 @@ default-versioned-images := 	mariadb-10.4 \
 
 experimental-images := 		solr-8 \
 							solr-8-drupal \
+							mysql-5.7 \
+							mysql-5.7-drupal \
+							mysql-8.0 \
+							mysql-8.0-drupal
 
 build-versioned-images = $(foreach image,$(versioned-images) $(default-versioned-images) $(experimental-images),build/$(image))
 
