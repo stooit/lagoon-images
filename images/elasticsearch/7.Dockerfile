@@ -35,6 +35,12 @@ ENV TMPDIR=/tmp \
     # When Bash is invoked as non-interactive (like `bash -c command`) it sources a file that is given in `BASH_ENV`
     BASH_ENV=/home/.bashrc
 
+RUN yum -y install zip && yum -y clean all  && rm -rf /var/cache
+
+# Mitigation for CVE-2021-45046 and CVE-2021-44228
+RUN zip -q -d /usr/share/elasticsearch/lib/log4j-core-2.11.1.jar org/apache/logging/log4j/core/lookup/JndiLookup.class \
+    && zip -q -d /usr/share/elasticsearch/bin/elasticsearch-sql-cli-7.8.1.jar org/apache/logging/log4j/core/lookup/JndiLookup.class
+
 RUN echo $'\n\
 node.name: "${HOSTNAME}"\n\
 node.master: "${NODE_MASTER}"\n\
@@ -50,7 +56,7 @@ cluster.remote.connect: "${CLUSTER_REMOTE_CONNECT}"' >> config/elasticsearch.yml
 
 RUN fix-permissions config
 
-ENV ES_JAVA_OPTS="-Xms400m -Xmx400m" \
+ENV ES_JAVA_OPTS="-Xms400m -Xmx400m -Dlog4j2.formatMsgNoLookups=true" \
     NODE_MASTER=true \
     NODE_DATA=true \
     NODE_INGEST=true \
