@@ -231,7 +231,8 @@ default-versioned-images := 	mariadb-10.4 \
 #######
 
 experimental-images := 		solr-8 \
-							solr-8-drupal
+							solr-8-drupal \
+							opensearch
 
 build-versioned-images = $(foreach image,$(versioned-images) $(default-versioned-images) $(experimental-images),build/$(image))
 
@@ -290,6 +291,7 @@ build/solr-8-drupal: build/solr-8
 build/mariadb-10.4 build/mariadb-10.5: build/commons
 build/mariadb-10.4-drupal: build/mariadb-10.4
 build/mariadb-10.5-drupal: build/mariadb-10.5
+build/opensearch: build/commons
 
 #######
 ####### Building Images
@@ -310,11 +312,9 @@ build-list:
 # Conduct post-release scans on images
 .PHONY: scan-images
 scan-images:
-	rm -f ./scans/*.txt
+	rm -f ./scans/*.txt ./scans/*.json
 	@for tag in $(foreach image,$(base-images) $(base-images-with-versions),$(image)); do \
-			docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $(HOME)/Library/Caches:/root/.cache/ aquasec/trivy --timeout 5m0s $(CI_BUILD_TAG)/$$tag > ./scans/$$tag.trivy.txt ; \
-			docker run --rm -v /var/run/docker.sock:/var/run/docker.sock anchore/syft $(CI_BUILD_TAG)/$$tag > ./scans/$$tag.syft.txt ; \
-			docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v $(HOME)/Library/Caches:/var/lib/grype/db anchore/grype $(CI_BUILD_TAG)/$$tag > ./scans/$$tag.grype.txt ; \
+			docker run --rm -v /var/run/docker.sock:/var/run/docker.sock anchore/syft packages $(CI_BUILD_TAG)/$$tag -o json > ./scans/$$tag.syft.json ; \
 			echo $$tag ; \
 	done
 
