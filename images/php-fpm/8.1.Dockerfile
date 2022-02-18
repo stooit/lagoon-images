@@ -5,7 +5,7 @@ FROM composer:latest as healthcheckbuilder
 
 RUN composer create-project --no-dev amazeeio/healthz-php /healthz-php v0.0.6
 
-FROM php:8.1.1-fpm-alpine3.14
+FROM php:8.1.2-fpm-alpine3.15
 
 LABEL org.opencontainers.image.authors="The Lagoon Authors" maintainer="The Lagoon Authors"
 LABEL org.opencontainers.image.source="https://github.com/uselagoon/lagoon-images" repository="https://github.com/uselagoon/lagoon-images"
@@ -71,9 +71,9 @@ RUN apk add --no-cache fcgi \
 
 RUN apk add --no-cache --virtual .phpize-deps $PHPIZE_DEPS \
     && yes '' | pecl install -f apcu-5.1.21 \
-    && yes '' | pecl install -f imagick-3.5.1 \
-    && yes '' | pecl install -f redis-5.3.5 \
-    && yes '' | pecl install -f xdebug-3.1.2 \
+    && yes '' | pecl install -f imagick-3.7.0 \
+    && yes '' | pecl install -f redis-5.3.7 \
+    && yes '' | pecl install -f xdebug-3.1.3 \
     && yes '' | pecl install -f yaml-2.2.2 \
     && docker-php-ext-enable apcu imagick redis xdebug yaml \
     && rm -rf /var/cache/apk/* /tmp/pear/ \
@@ -81,12 +81,14 @@ RUN apk add --no-cache --virtual .phpize-deps $PHPIZE_DEPS \
     && sed -i '1s/^/;Intentionally disabled. Enable via setting env variable XDEBUG_ENABLE to true\n;/' /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 RUN docker-php-ext-configure gd --with-webp --with-jpeg \
-    && docker-php-ext-install -j4 bcmath gd gettext mysqli pdo_mysql opcache pdo_pgsql pgsql shmop soap sockets xsl zip
+    && docker-php-ext-install -j4 bcmath gd gettext mysqli pdo_mysql opcache pdo_pgsql pgsql shmop soap xsl zip \
+# PHP failing to build sockets extension https://github.com/docker-library/php/issues/1245#issuecomment-1020146157 
+    && CFLAGS="$CFLAGS -D_GNU_SOURCE" docker-php-ext-install -j4 sockets 
 
 # New Relic PHP Agent.
 # @see https://docs.newrelic.com/docs/release-notes/agent-release-notes/php-release-notes/
 # @see https://docs.newrelic.com/docs/agents/php-agent/getting-started/php-agent-compatibility-requirements
-# ENV NEWRELIC_VERSION=9.17.1.301
+# ENV NEWRELIC_VERSION=9.18.1.303
 # RUN mkdir -p /tmp/newrelic && cd /tmp/newrelic \
 #     && wget https://download.newrelic.com/php_agent/archive/${NEWRELIC_VERSION}/newrelic-php5-${NEWRELIC_VERSION}-linux-musl.tar.gz \
 #     && gzip -dc newrelic-php5-${NEWRELIC_VERSION}-linux-musl.tar.gz | tar --strip-components=1 -xf - \
@@ -112,7 +114,7 @@ RUN docker-php-ext-configure gd --with-webp --with-jpeg \
 #     && mv /blackfire/blackfire-*.so $(php -r "echo ini_get('extension_dir');")/blackfire.so \
 #     && fix-permissions /usr/local/etc/php/conf.d/
 
-# ENV BLACKFIRE_VERSION=2.4.2
+# ENV BLACKFIRE_VERSION=2.5.2
 # RUN architecture=$(case $(uname -m) in x86_64 | amd64) echo "amd64" ;; aarch64 | arm64 | armv8) echo "arm64" ;; *) echo "amd64" ;; esac) \
 #     && curl -A "Docker" -o /blackfire/blackfire-linux_${architecture}.tar.gz -D - -L -s https://packages.blackfire.io/binaries/blackfire/${BLACKFIRE_VERSION}/blackfire-linux_${architecture}.tar.gz \
 #     && tar zxpf /blackfire/blackfire-linux_${architecture}.tar.gz -C /blackfire \
