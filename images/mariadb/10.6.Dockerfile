@@ -1,6 +1,6 @@
 ARG IMAGE_REPO
 FROM ${IMAGE_REPO:-lagoon}/commons as commons
-FROM alpine:3.14.6
+FROM alpine:3.15.4
 
 LABEL org.opencontainers.image.authors="The Lagoon Authors" maintainer="The Lagoon Authors"
 LABEL org.opencontainers.image.source="https://github.com/uselagoon/lagoon-images" repository="https://github.com/uselagoon/lagoon-images"
@@ -36,10 +36,10 @@ RUN \
     apk add --no-cache --virtual .common-run-deps \
     bash \
     curl \
-    mariadb=~10.5 \
-    mariadb-client=~10.5 \
-    mariadb-common=~10.5 \
-    mariadb-server-utils=~10.5 \
+    mariadb=~10.6 \
+    mariadb-client=~10.6 \
+    mariadb-common=~10.6 \
+    mariadb-server-utils=~10.6 \
     net-tools \
     pwgen \
     tzdata \
